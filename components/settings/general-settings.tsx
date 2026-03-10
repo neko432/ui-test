@@ -44,8 +44,8 @@ export function GeneralSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline" className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">リセット</Button>
-        <Button className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">設定を保存</Button>
+        <Button variant="outline">リセット</Button>
+        <Button>設定を保存</Button>
       </div>
     </div>
   )

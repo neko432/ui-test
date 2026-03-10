@@ -1,16 +1,18 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { ImageIcon, Trash2, Upload } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { useBackground } from "@/components/background-provider"
+import { cn } from "@/lib/utils"
 
 export function BackgroundSettings() {
   const { backgroundImage, setBackgroundImage, blurAmount, setBlurAmount, opacity, setOpacity } = useBackground()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -27,6 +29,28 @@ export function BackgroundSettings() {
     setBackgroundImage(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = () => {
+    setIsDragOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setBackgroundImage(event.target?.result as string)
+      }
+      reader.readAsDataURL(file)
     }
   }
 
@@ -54,11 +78,11 @@ export function BackgroundSettings() {
 
         {backgroundImage ? (
           <div className="space-y-6">
-            <div className="relative aspect-video w-full max-w-sm overflow-hidden rounded-xl border border-border">
+            <div className="relative aspect-video w-full max-w-sm overflow-hidden rounded-xl border border-border transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
               <img
                 src={backgroundImage}
                 alt="背景プレビュー"
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-all duration-300"
                 style={{
                   filter: `blur(${blurAmount / 4}px)`,
                   opacity: opacity,
@@ -119,10 +143,26 @@ export function BackgroundSettings() {
         ) : (
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full max-w-sm aspect-video rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-secondary/50 transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer"
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={cn(
+              "w-full max-w-sm aspect-video rounded-xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center gap-3 cursor-pointer",
+              "hover:border-primary/50 hover:bg-secondary/50 hover:scale-[1.02]",
+              "active:scale-[0.98]",
+              isDragOver 
+                ? "border-primary bg-primary/10 scale-[1.02]" 
+                : "border-border"
+            )}
           >
-            <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center">
-              <Upload className="h-6 w-6 text-muted-foreground" />
+            <div className={cn(
+              "h-12 w-12 rounded-full bg-secondary flex items-center justify-center transition-all duration-300",
+              isDragOver && "bg-primary/20 scale-110"
+            )}>
+              <Upload className={cn(
+                "h-6 w-6 text-muted-foreground transition-all duration-300",
+                isDragOver && "text-primary"
+              )} />
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-foreground">クリックして画像を選択</p>

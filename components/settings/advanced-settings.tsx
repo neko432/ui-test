@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Wrench, Shield, Trash2, AlertTriangle, Monitor, Crosshair, Clock, FileText } from "lucide-react"
+import { Wrench, Shield, Trash2, AlertTriangle, Monitor, Crosshair, Clock, FileText, Download, Upload } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -15,15 +15,54 @@ export function AdvancedSettings() {
   const [debugMode, setDebugMode] = useState(false)
   const [isCalibrating, setIsCalibrating] = useState(false)
   const [currentResolution, setCurrentResolution] = useState({ width: 1920, height: 1080 })
-  const [captureInterval, setCaptureInterval] = useState(100)
+  const [captureInterval, setCaptureInterval] = useState(5) // Changed to seconds, default 5
   const [ignorePatterns, setIgnorePatterns] = useState("^\\d+$\n^[A-Za-z]$\n^https?://.*")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleCalibration = () => {
     setIsCalibrating(true)
-    // シミュレーション：実際の実装ではキャリブレーション処理を行う
     setTimeout(() => {
       setIsCalibrating(false)
     }, 3000)
+  }
+
+  const handleCaptureIntervalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    // Allow decimal to first place
+    const numValue = parseFloat(value)
+    if (!isNaN(numValue)) {
+      // Round to 1 decimal place and clamp between 0.1 and 60 seconds
+      const rounded = Math.round(numValue * 10) / 10
+      setCaptureInterval(Math.max(0.1, Math.min(60, rounded)))
+    }
+  }
+
+  const handleExportPatterns = () => {
+    const blob = new Blob([ignorePatterns], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'ignore-patterns.txt'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImportPatterns = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const content = event.target?.result as string
+        setIgnorePatterns(content)
+      }
+      reader.readAsText(file)
+    }
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
   return (
@@ -77,7 +116,82 @@ export function AdvancedSettings() {
             </Select>
           </div>
 
-          {/* Resolution Display */}
+          {/* Capture Interval - MOVED UP */}
+          <div className="p-4 rounded-lg border border-border/50 bg-secondary/30">
+            <div className="flex items-center gap-3 mb-3">
+              <Clock className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-medium">キャプチャ間隔</Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                min="0.1"
+                max="60"
+                step="0.1"
+                value={captureInterval}
+                onChange={handleCaptureIntervalChange}
+                className="w-24 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+              />
+              <span className="text-sm text-muted-foreground">秒ごとにキャプチャ</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              値を小さくすると反応が速くなりますが、CPU負荷が高くなります（推奨: 5秒）
+            </p>
+          </div>
+
+          {/* Ignore Patterns - MOVED UP */}
+          <div className="p-4 rounded-lg border border-border/50 bg-secondary/30">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <FileText className="h-4 w-4 text-primary" />
+                <Label className="text-sm font-medium">翻訳しないパターン</Label>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".txt"
+                  onChange={handleImportPatterns}
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="gap-1.5"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  インポート
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportPatterns}
+                  className="gap-1.5"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  エクスポート
+                </Button>
+              </div>
+            </div>
+            <Textarea
+              value={ignorePatterns}
+              onChange={(e) => setIgnorePatterns(e.target.value)}
+              placeholder="正規表現パターンを1行に1つ入力"
+              className="min-h-[120px] font-mono text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              正規表現パターンを1行に1つ入力してください。マッチした文字列は翻訳されません。
+            </p>
+            <div className="mt-2 p-2 rounded bg-muted/50 text-xs text-muted-foreground">
+              <p className="font-medium mb-1">例:</p>
+              <code className="block">{'^\d+$'} - 数字のみ</code>
+              <code className="block">{'[A-Za-z]$'} - 英字1文字</code>
+              <code className="block">{'https?://.*'} - URL</code>
+            </div>
+          </div>
+
+          {/* Resolution Display - MOVED DOWN */}
           <div className="p-4 rounded-lg border border-border/50 bg-secondary/30">
             <div className="flex items-center gap-3 mb-3">
               <Monitor className="h-4 w-4 text-primary" />
@@ -108,8 +222,8 @@ export function AdvancedSettings() {
             <Button 
               onClick={handleCalibration}
               disabled={isCalibrating}
-              className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               variant={isCalibrating ? "secondary" : "default"}
+              className="w-full"
             >
               {isCalibrating ? (
                 <>
@@ -123,52 +237,6 @@ export function AdvancedSettings() {
                 </>
               )}
             </Button>
-          </div>
-
-          {/* Capture Interval */}
-          <div className="p-4 rounded-lg border border-border/50 bg-secondary/30">
-            <div className="flex items-center gap-3 mb-3">
-              <Clock className="h-4 w-4 text-primary" />
-              <Label className="text-sm font-medium">キャプチャ間隔</Label>
-            </div>
-            <div className="flex items-center gap-3">
-              <Input
-                type="number"
-                min="50"
-                max="1000"
-                step="10"
-                value={captureInterval}
-                onChange={(e) => setCaptureInterval(Math.max(50, Math.min(1000, parseInt(e.target.value) || 100)))}
-                className="w-24 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-              />
-              <span className="text-sm text-muted-foreground">ミリ秒ごとにキャプチャ</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              値を小さくすると反応が速くなりますが、CPU負荷が高くなります（推奨: 100ms）
-            </p>
-          </div>
-
-          {/* Ignore Patterns */}
-          <div className="p-4 rounded-lg border border-border/50 bg-secondary/30">
-            <div className="flex items-center gap-3 mb-3">
-              <FileText className="h-4 w-4 text-primary" />
-              <Label className="text-sm font-medium">翻訳しないパターン</Label>
-            </div>
-            <Textarea
-              value={ignorePatterns}
-              onChange={(e) => setIgnorePatterns(e.target.value)}
-              placeholder="正規表現パターンを1行に1つ入力"
-              className="min-h-[120px] font-mono text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-            />
-            <p className="text-xs text-muted-foreground mt-2">
-              正規表現パターンを1行に1つ入力してください。マッチした文字列は翻訳されません。
-            </p>
-            <div className="mt-2 p-2 rounded bg-muted/50 text-xs text-muted-foreground">
-              <p className="font-medium mb-1">例:</p>
-              <code className="block">{'^\d+$'} - 数字のみ</code>
-              <code className="block">{'[A-Za-z]$'} - 英字1文字</code>
-              <code className="block">{'https?://.*'} - URL</code>
-            </div>
           </div>
         </div>
       </SettingsCard>
@@ -199,8 +267,8 @@ export function AdvancedSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline" className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">リセット</Button>
-        <Button className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">設定を保存</Button>
+        <Button variant="outline">リセット</Button>
+        <Button>設定を保存</Button>
       </div>
     </div>
   )

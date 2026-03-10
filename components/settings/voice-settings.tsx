@@ -86,7 +86,7 @@ export function VoiceSettings() {
           <div className="space-y-2">
             <Label className="text-sm font-medium">エンジン</Label>
             <Select value={ttsEngine} onValueChange={(v) => { setTtsEngine(v); setEdgeTtsStatus("idle"); setVoicevoxStatus("idle"); }}>
-              <SelectTrigger className="w-full max-w-xs transition-all duration-200 hover:border-primary/50">
+              <SelectTrigger className="w-full max-w-xs">
                 <SelectValue placeholder="エンジンを選択" />
               </SelectTrigger>
               <SelectContent>
@@ -107,7 +107,7 @@ export function VoiceSettings() {
               variant="outline" 
               onClick={testCurrentEngine}
               disabled={getCurrentStatus() === "testing"}
-              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="gap-2"
             >
               {getCurrentStatus() === "testing" ? (
                 <>
@@ -145,7 +145,7 @@ export function VoiceSettings() {
             <div className="space-y-2">
               <Label className="text-sm font-medium">音声</Label>
               <Select value={edgeVoice} onValueChange={setEdgeVoice}>
-                <SelectTrigger className="w-full max-w-xs transition-all duration-200 hover:border-primary/50">
+                <SelectTrigger className="w-full max-w-xs">
                   <SelectValue placeholder="音声を選択" />
                 </SelectTrigger>
                 <SelectContent>
@@ -160,7 +160,7 @@ export function VoiceSettings() {
               variant="outline" 
               onClick={playTestAudio}
               disabled={isPlaying}
-              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="gap-2"
             >
               <Play className={`h-4 w-4 ${isPlaying ? "animate-pulse" : ""}`} />
               {isPlaying ? "再生中..." : "テスト再生"}
@@ -171,7 +171,7 @@ export function VoiceSettings() {
             <div className="space-y-2">
               <Label className="text-sm font-medium">話者</Label>
               <Select value={voicevoxSpeaker} onValueChange={setVoicevoxSpeaker}>
-                <SelectTrigger className="w-full max-w-xs transition-all duration-200 hover:border-primary/50">
+                <SelectTrigger className="w-full max-w-xs">
                   <SelectValue placeholder="話者を選択" />
                 </SelectTrigger>
                 <SelectContent className="max-h-[200px] overflow-y-auto">
@@ -192,7 +192,7 @@ export function VoiceSettings() {
               variant="outline" 
               onClick={playTestAudio}
               disabled={isPlaying}
-              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="gap-2"
             >
               <Play className={`h-4 w-4 ${isPlaying ? "animate-pulse" : ""}`} />
               {isPlaying ? "再生中..." : "テスト再生"}
@@ -262,8 +262,8 @@ export function VoiceSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline" className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">リセット</Button>
-        <Button className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">設定を保存</Button>
+        <Button variant="outline">リセット</Button>
+        <Button>設定を保存</Button>
       </div>
     </div>
   )
