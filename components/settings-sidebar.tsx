@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { 
   Settings, 
   Languages, 
@@ -92,6 +92,10 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
   const [isIconPressed, setIsIconPressed] = useState(false)
   const [messageAnimation, setMessageAnimation] = useState<"enter" | "exit" | "idle">("idle")
   const [animationType, setAnimationType] = useState<number>(0)
+  
+  // Refs to track and clear timers
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const exitTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Animation types for random selection
   const animationTypes = [
@@ -108,6 +112,16 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
     setIsIconPressed(true)
     setTimeout(() => setIsIconPressed(false), 150)
     
+    // Clear any existing timers to prevent conflicts
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current)
+      hideTimerRef.current = null
+    }
+    if (exitTimerRef.current) {
+      clearTimeout(exitTimerRef.current)
+      exitTimerRef.current = null
+    }
+    
     // Pick random message
     const randomIndex = Math.floor(Math.random() * defaultMessages.length)
     setCurrentMessage(defaultMessages[randomIndex])
@@ -121,9 +135,9 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
     setMessageAnimation("enter")
     
     // Auto hide after 3 seconds
-    setTimeout(() => {
+    hideTimerRef.current = setTimeout(() => {
       setMessageAnimation("exit")
-      setTimeout(() => {
+      exitTimerRef.current = setTimeout(() => {
         setShowMessage(false)
         setMessageAnimation("idle")
       }, 300)
