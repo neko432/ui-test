@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Button } from "@/components/ui/button"
+import { AnimSwitch } from "@/components/ui/anim-switch"
+import { AnimButton } from "@/components/ui/anim-button"
 import { Settings, Monitor } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { BackgroundSettings } from "@/components/settings/background-settings"
@@ -35,7 +35,7 @@ export function GeneralSettings() {
             <Label className="text-sm font-medium">Windows起動時に自動起動</Label>
             <p className="text-xs text-muted-foreground">PCを起動した際に自動的にアプリを起動します</p>
           </div>
-          <Switch checked={autoStart} onCheckedChange={setAutoStart} />
+          <AnimSwitch checked={autoStart} onCheckedChange={setAutoStart} />
         </div>
       </SettingsCard>
 
@@ -44,8 +44,8 @@ export function GeneralSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline" className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">リセット</Button>
-        <Button className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">設定を保存</Button>
+        <AnimButton variant="outline">リセット</AnimButton>
+        <AnimButton soundType="save">設定を保存</AnimButton>
       </div>
     </div>
   )

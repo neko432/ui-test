@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { AnimSwitch } from "@/components/ui/anim-switch"
+import { AnimSlider } from "@/components/ui/anim-slider"
+import { AnimButton } from "@/components/ui/anim-button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Languages, Key, ScanText, RefreshCw, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
@@ -25,7 +25,6 @@ export function TranslationSettings() {
   const testConnection = (type: "groq" | "gemini") => {
     const setStatus = type === "groq" ? setGroqStatus : setGeminiStatus
     setStatus("testing")
-    // Simulate API test
     setTimeout(() => {
       setStatus(Math.random() > 0.3 ? "success" : "error")
     }, 1500)
@@ -33,40 +32,28 @@ export function TranslationSettings() {
 
   const getShortnessLabel = (value: number) => {
     switch (value) {
-      case 0:
-        return "弱"
-      case 1:
-        return "標準"
-      case 2:
-        return "強"
-      default:
-        return "標準"
+      case 0: return "弱"
+      case 1: return "標準"
+      case 2: return "強"
+      default: return "標準"
     }
   }
 
   const getShortnessDescription = (value: number) => {
     switch (value) {
-      case 0:
-        return "元の意味を保ちつつ、ほんの少しだけ短くします。"
-      case 1:
-        return "読み上げ向けにバランスよく短くします（おすすめ）。"
-      case 2:
-        return "できるだけ短く要約して翻訳します。"
-      default:
-        return "読み上げ向けにバランスよく短くします（おすすめ）。"
+      case 0: return "元の意味を保ちつつ、ほんの少しだけ短くします。"
+      case 1: return "読み上げ向けにバランスよく短くします（おすすめ）。"
+      case 2: return "できるだけ短く要約して翻訳します。"
+      default: return "読み上げ向けにバランスよく短くします（おすすめ）。"
     }
   }
 
   const renderStatusIcon = (status: "idle" | "testing" | "success" | "error") => {
     switch (status) {
-      case "testing":
-        return <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
-      case "success":
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />
-      case "error":
-        return <XCircle className="h-4 w-4 text-destructive" />
-      default:
-        return null
+      case "testing": return <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+      case "success": return <CheckCircle2 className="h-4 w-4 text-green-500" />
+      case "error":   return <XCircle className="h-4 w-4 text-destructive" />
+      default:        return null
     }
   }
 
@@ -105,20 +92,20 @@ export function TranslationSettings() {
                 <button
                   type="button"
                   onClick={() => setShowGroqKey(!showGroqKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground btn-animate"
                 >
                   {showGroqKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <Button 
-                variant="outline" 
+              <AnimButton
+                variant="outline"
                 onClick={() => testConnection("groq")}
                 disabled={!groqKey || groqStatus === "testing"}
                 className="gap-2"
               >
                 {renderStatusIcon(groqStatus)}
                 接続テスト
-              </Button>
+              </AnimButton>
             </div>
           </div>
 
@@ -137,20 +124,20 @@ export function TranslationSettings() {
                 <button
                   type="button"
                   onClick={() => setShowGeminiKey(!showGeminiKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground btn-animate"
                 >
                   {showGeminiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <Button 
-                variant="outline" 
+              <AnimButton
+                variant="outline"
                 onClick={() => testConnection("gemini")}
                 disabled={!geminiKey || geminiStatus === "testing"}
                 className="gap-2"
               >
                 {renderStatusIcon(geminiStatus)}
                 接続テスト
-              </Button>
+              </AnimButton>
             </div>
           </div>
         </div>
@@ -174,8 +161,8 @@ export function TranslationSettings() {
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
-            {ocrEngine === "windows" 
-              ? "Windowsの標準OCR機能を使用します。軽量で高速です。" 
+            {ocrEngine === "windows"
+              ? "Windowsの標準OCR機能を使用します。軽量で高速です。"
               : "EasyOCRを使用します。精度が高いですが、やや遅いです。"}
           </p>
         </div>
@@ -192,7 +179,7 @@ export function TranslationSettings() {
             <Label className="text-sm font-medium">短く翻訳</Label>
             <span className="text-sm font-medium text-primary">{getShortnessLabel(translationShortness[0])}</span>
           </div>
-          <Slider
+          <AnimSlider
             value={translationShortness}
             onValueChange={setTranslationShortness}
             min={0}
@@ -230,8 +217,8 @@ export function TranslationSettings() {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              {primaryEngine === "groq" 
-                ? "Groqは高速なレスポンスが特徴です。" 
+              {primaryEngine === "groq"
+                ? "Groqは高速なレスポンスが特徴です。"
                 : "Geminiは高精度な翻訳が可能です。"}
             </p>
           </div>
@@ -241,15 +228,15 @@ export function TranslationSettings() {
               <Label className="text-sm font-medium">自動フォールバック</Label>
               <p className="text-xs text-muted-foreground">プライマリエンジン失敗時に自動で切り替え</p>
             </div>
-            <Switch checked={autoFallback} onCheckedChange={setAutoFallback} />
+            <AnimSwitch checked={autoFallback} onCheckedChange={setAutoFallback} />
           </div>
         </div>
       </SettingsCard>
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline">リセット</Button>
-        <Button>設定を保存</Button>
+        <AnimButton variant="outline">リセット</AnimButton>
+        <AnimButton soundType="save">設定を保存</AnimButton>
       </div>
     </div>
   )

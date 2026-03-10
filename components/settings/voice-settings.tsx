@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Button } from "@/components/ui/button"
+import { AnimSlider } from "@/components/ui/anim-slider"
+import { AnimButton } from "@/components/ui/anim-button"
 import { Input } from "@/components/ui/input"
 import { Volume2, Mic, Play, CheckCircle2, XCircle, RefreshCw } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
@@ -21,29 +21,19 @@ export function VoiceSettings() {
 
   const testVoicevox = () => {
     setVoicevoxStatus("testing")
-    setTimeout(() => {
-      setVoicevoxStatus(Math.random() > 0.3 ? "success" : "error")
-    }, 1500)
+    setTimeout(() => { setVoicevoxStatus(Math.random() > 0.3 ? "success" : "error") }, 1500)
   }
 
   const testEdgeTts = () => {
     setEdgeTtsStatus("testing")
-    setTimeout(() => {
-      setEdgeTtsStatus(Math.random() > 0.2 ? "success" : "error")
-    }, 1500)
+    setTimeout(() => { setEdgeTtsStatus(Math.random() > 0.2 ? "success" : "error") }, 1500)
   }
 
   const testCurrentEngine = () => {
-    if (ttsEngine === "edge-tts") {
-      testEdgeTts()
-    } else {
-      testVoicevox()
-    }
+    if (ttsEngine === "edge-tts") { testEdgeTts() } else { testVoicevox() }
   }
 
-  const getCurrentStatus = () => {
-    return ttsEngine === "edge-tts" ? edgeTtsStatus : voicevoxStatus
-  }
+  const getCurrentStatus = () => ttsEngine === "edge-tts" ? edgeTtsStatus : voicevoxStatus
 
   const playTestAudio = () => {
     setIsPlaying(true)
@@ -52,14 +42,10 @@ export function VoiceSettings() {
 
   const renderStatusIcon = (status: "idle" | "testing" | "success" | "error") => {
     switch (status) {
-      case "testing":
-        return <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
-      case "success":
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />
-      case "error":
-        return <XCircle className="h-4 w-4 text-destructive" />
-      default:
-        return null
+      case "testing": return <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+      case "success": return <CheckCircle2 className="h-4 w-4 text-green-500" />
+      case "error":   return <XCircle className="h-4 w-4 text-destructive" />
+      default:        return null
     }
   }
 
@@ -85,7 +71,10 @@ export function VoiceSettings() {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label className="text-sm font-medium">エンジン</Label>
-            <Select value={ttsEngine} onValueChange={(v) => { setTtsEngine(v); setEdgeTtsStatus("idle"); setVoicevoxStatus("idle"); }}>
+            <Select
+              value={ttsEngine}
+              onValueChange={(v) => { setTtsEngine(v); setEdgeTtsStatus("idle"); setVoicevoxStatus("idle") }}
+            >
               <SelectTrigger className="w-full max-w-xs transition-all duration-200 hover:border-primary/50">
                 <SelectValue placeholder="エンジンを選択" />
               </SelectTrigger>
@@ -95,19 +84,18 @@ export function VoiceSettings() {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              {ttsEngine === "edge-tts" 
-                ? "Microsoft Edgeの音声合成を使用します。追加インストール不要です。" 
+              {ttsEngine === "edge-tts"
+                ? "Microsoft Edgeの音声合成を使用します。追加インストール不要です。"
                 : "VOICEVOXを使用します。VOICEVOXアプリが起動している必要があります。"}
             </p>
           </div>
 
-          {/* Connection Test */}
           <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
+            <AnimButton
+              variant="outline"
               onClick={testCurrentEngine}
               disabled={getCurrentStatus() === "testing"}
-              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="gap-2"
             >
               {getCurrentStatus() === "testing" ? (
                 <>
@@ -120,7 +108,7 @@ export function VoiceSettings() {
                   接続テスト
                 </>
               )}
-            </Button>
+            </AnimButton>
             {renderStatusIcon(getCurrentStatus())}
             {getCurrentStatus() === "success" && (
               <span className="text-xs text-green-500">接続成功</span>
@@ -156,15 +144,15 @@ export function VoiceSettings() {
                 </SelectContent>
               </Select>
             </div>
-            <Button 
-              variant="outline" 
+            <AnimButton
+              variant="outline"
               onClick={playTestAudio}
               disabled={isPlaying}
-              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="gap-2"
             >
               <Play className={`h-4 w-4 ${isPlaying ? "animate-pulse" : ""}`} />
               {isPlaying ? "再生中..." : "テスト再生"}
-            </Button>
+            </AnimButton>
           </div>
         ) : (
           <div className="space-y-4">
@@ -187,16 +175,15 @@ export function VoiceSettings() {
                 </SelectContent>
               </Select>
             </div>
-
-            <Button 
-              variant="outline" 
+            <AnimButton
+              variant="outline"
               onClick={playTestAudio}
               disabled={isPlaying}
-              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="gap-2"
             >
               <Play className={`h-4 w-4 ${isPlaying ? "animate-pulse" : ""}`} />
               {isPlaying ? "再生中..." : "テスト再生"}
-            </Button>
+            </AnimButton>
             {voicevoxStatus === "error" && (
               <p className="text-xs text-destructive">
                 VOICEVOXに接続できません。アプリが起動しているか確認してください。
@@ -217,7 +204,7 @@ export function VoiceSettings() {
             <Label className="text-sm font-medium">速度</Label>
             <span className="text-sm font-medium text-primary">{speed[0].toFixed(1)}x</span>
           </div>
-          <Slider
+          <AnimSlider
             value={speed}
             onValueChange={setSpeed}
             min={0.5}
@@ -262,8 +249,8 @@ export function VoiceSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline" className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">リセット</Button>
-        <Button className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">設定を保存</Button>
+        <AnimButton variant="outline">リセット</AnimButton>
+        <AnimButton soundType="save">設定を保存</AnimButton>
       </div>
     </div>
   )

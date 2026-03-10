@@ -2,11 +2,11 @@
 
 import { useState } from "react"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { AnimButton } from "@/components/ui/anim-button"
 import { Keyboard, RotateCcw } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { cn } from "@/lib/utils"
+import { useFX } from "@/components/fx-provider"
 
 interface Keybind {
   ctrl: boolean
@@ -22,12 +22,12 @@ interface KeybindItemProps {
 }
 
 function parseKeybindString(str: string): Keybind {
-  const parts = str.toUpperCase().split("+").map(s => s.trim())
+  const parts = str.toUpperCase().split("+").map((s) => s.trim())
   return {
     ctrl: parts.includes("CTRL"),
     alt: parts.includes("ALT"),
     shift: parts.includes("SHIFT"),
-    key: parts.filter(p => !["CTRL", "ALT", "SHIFT"].includes(p))[0] || ""
+    key: parts.filter((p) => !["CTRL", "ALT", "SHIFT"].includes(p))[0] || "",
   }
 }
 
@@ -41,34 +41,35 @@ function formatKeybind(keybind: Keybind): string {
 }
 
 function KeybindItem({ label, description, defaultKeybind }: KeybindItemProps) {
+  const { playSound, triggerParticle, rareChance } = useFX()
   const [keybind, setKeybind] = useState<Keybind>(defaultKeybind)
   const [isListening, setIsListening] = useState(false)
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     e.preventDefault()
     if (!isListening) return
-
-    // Escapeでキャンセル
-    if (e.key === "Escape") {
-      setIsListening(false)
-      return
-    }
-
-    // 修飾キーだけの場合は待機
-    if (["Control", "Alt", "Shift", "Meta"].includes(e.key)) {
-      return
-    }
+    if (e.key === "Escape") { setIsListening(false); return }
+    if (["Control", "Alt", "Shift", "Meta"].includes(e.key)) return
 
     let keyName = e.key
     if (keyName === " ") keyName = "Space"
-    
+
     setKeybind({
       ctrl: e.ctrlKey || e.metaKey,
       alt: e.altKey,
       shift: e.shiftKey,
-      key: keyName.toUpperCase()
+      key: keyName.toUpperCase(),
     })
     setIsListening(false)
+    playSound("click")
+  }
+
+  const handleReset = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setKeybind(defaultKeybind)
+    const rect = e.currentTarget.getBoundingClientRect()
+    const isRare = rareChance()
+    triggerParticle(rect.left + rect.width / 2, rect.top + rect.height / 2, isRare ? "rare" : "normal")
+    playSound("click")
   }
 
   const displayText = formatKeybind(keybind)
@@ -81,26 +82,24 @@ function KeybindItem({ label, description, defaultKeybind }: KeybindItemProps) {
       </div>
       <div className="flex items-center gap-2">
         <button
-          onClick={() => setIsListening(true)}
+          onClick={() => { setIsListening(true); playSound("click") }}
           onKeyDown={handleKeyDown}
           onBlur={() => setIsListening(false)}
           className={cn(
-            "min-w-[100px] px-4 py-2 rounded-lg text-sm font-mono font-medium border transition-all duration-200",
-            isListening 
-              ? "border-primary bg-primary/10 text-primary animate-pulse" 
+            "min-w-[100px] px-4 py-2 rounded-lg text-sm font-mono font-medium border transition-all duration-200 btn-animate",
+            isListening
+              ? "border-primary bg-primary/10 text-primary animate-pulse"
               : "border-border bg-secondary text-foreground hover:border-primary/50"
           )}
         >
           {isListening ? "キーを入力..." : displayText}
         </button>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => setKeybind(defaultKeybind)}
-          className="h-8 w-8"
+        <button
+          onClick={handleReset}
+          className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground btn-animate"
         >
           <RotateCcw className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
     </div>
   )
@@ -127,13 +126,13 @@ export function KeybindSettings() {
         description="翻訳機能のショートカット"
       >
         <div>
-          <KeybindItem 
-            label="翻訳の一時停止/再開" 
+          <KeybindItem
+            label="翻訳の一時停止/再開"
             description="翻訳機能を一時的に停止または再開します"
             defaultKeybind={{ ctrl: false, alt: false, shift: false, key: "F8" }}
           />
-          <KeybindItem 
-            label="設定を開く" 
+          <KeybindItem
+            label="設定を開く"
             description="設定画面を表示"
             defaultKeybind={{ ctrl: false, alt: false, shift: false, key: "F10" }}
           />
@@ -142,8 +141,8 @@ export function KeybindSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline">すべてリセット</Button>
-        <Button>設定を保存</Button>
+        <AnimButton variant="outline">すべてリセット</AnimButton>
+        <AnimButton soundType="save">設定を保存</AnimButton>
       </div>
     </div>
   )

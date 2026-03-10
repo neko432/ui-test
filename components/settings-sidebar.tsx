@@ -11,10 +11,10 @@ import {
   X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import type { SettingsSection } from "@/app/page"
 import { useState } from "react"
+import { useFX } from "@/components/fx-provider"
 
 export type TranslatorStatus = "translating" | "paused" | "stopped"
 
