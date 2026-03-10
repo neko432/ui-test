@@ -8,6 +8,7 @@ import { VoiceSettings } from "@/components/settings/voice-settings"
 import { KeybindSettings } from "@/components/settings/keybind-settings"
 import { AdvancedSettings } from "@/components/settings/advanced-settings"
 import { BackgroundProvider, useBackground } from "@/components/background-provider"
+import { FXProvider } from "@/components/fx-provider"
 
 export type SettingsSection = 
   | "general" 
@@ -71,7 +72,9 @@ function SettingsContent() {
 export default function SettingsPage() {
   return (
     <BackgroundProvider>
-      <SettingsContent />
+      <FXProvider>
+        <SettingsContent />
+      </FXProvider>
     </BackgroundProvider>
   )
 }
