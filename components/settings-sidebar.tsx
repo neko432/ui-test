@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { 
   Settings, 
   Languages, 
@@ -91,7 +91,17 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
   const [currentMessage, setCurrentMessage] = useState("")
   const [isIconPressed, setIsIconPressed] = useState(false)
   const [messageAnimation, setMessageAnimation] = useState<"enter" | "exit" | "idle">("idle")
-  const [animationType, setAnimationType] = useState(0)
+  const [animationType, setAnimationType] = useState<number>(0)
+
+  // Animation types for random selection
+  const animationTypes = [
+    "bounce-in",
+    "spin-in", 
+    "slide-diagonal",
+    "elastic-pop",
+    "wobble-in",
+    "flip-in",
+  ]
 
   // Handle icon click to show random message
   const handleIconClick = () => {
@@ -101,6 +111,10 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
     // Pick random message
     const randomIndex = Math.floor(Math.random() * defaultMessages.length)
     setCurrentMessage(defaultMessages[randomIndex])
+    
+    // Pick random animation type
+    const randomAnimIndex = Math.floor(Math.random() * animationTypes.length)
+    setAnimationType(randomAnimIndex)
     
     // Show message with animation
     setShowMessage(true)
@@ -171,20 +185,29 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
             <p className="text-xs text-muted-foreground">Settings</p>
           </div>
           
-          {/* Random Message Bubble */}
+          {/* Random Message Bubble - overlapping title with diagonal angle */}
           {showMessage && (
             <div 
               className={cn(
-                "absolute left-16 top-full mt-2 z-50",
-                "max-w-[200px] px-4 py-2 rounded-2xl rounded-tl-sm",
-                "bg-primary text-primary-foreground text-sm font-medium",
-                "shadow-lg shadow-primary/20",
-                "before:content-[''] before:absolute before:-top-2 before:left-3",
-                "before:border-8 before:border-transparent before:border-b-primary",
-                messageAnimation === "enter" && "animate-message-enter",
-                messageAnimation === "exit" && "animate-message-exit"
+                "absolute left-14 -top-2 z-50",
+                "max-w-[220px] px-4 py-2.5 rounded-2xl rounded-bl-sm",
+                "bg-white/90 dark:bg-white/95 backdrop-blur-md",
+                "text-gray-800 dark:text-gray-900 text-sm font-medium",
+                "shadow-xl shadow-black/10 dark:shadow-black/20",
+                "border border-white/50 dark:border-white/60",
+                "rotate-[3deg] origin-bottom-left",
+                // Random animation classes
+                messageAnimation === "enter" && animationType === 0 && "animate-bubble-bounce-in",
+                messageAnimation === "enter" && animationType === 1 && "animate-bubble-spin-in",
+                messageAnimation === "enter" && animationType === 2 && "animate-bubble-slide-diagonal",
+                messageAnimation === "enter" && animationType === 3 && "animate-bubble-elastic-pop",
+                messageAnimation === "enter" && animationType === 4 && "animate-bubble-wobble-in",
+                messageAnimation === "enter" && animationType === 5 && "animate-bubble-flip-in",
+                messageAnimation === "exit" && "animate-bubble-exit"
               )}
             >
+              {/* Tail pointing to icon */}
+              <div className="absolute -bottom-2 left-3 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white/90 dark:border-t-white/95" />
               {currentMessage}
             </div>
           )}
