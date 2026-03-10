@@ -67,6 +67,14 @@ function SelectContent({
           className,
         )}
         position={position}
+        // Allow page scroll when cursor is outside the dropdown
+        onPointerDownOutside={(e) => {
+          // Let scroll events pass through when clicking outside
+          const target = e.target as HTMLElement
+          if (target.closest('[data-radix-scroll-area-viewport]') || target === document.documentElement) {
+            e.preventDefault()
+          }
+        }}
         {...props}
       >
         <SelectScrollUpButton />

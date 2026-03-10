@@ -81,7 +81,7 @@ export function ThemeToggle() {
   }
 
   return (
-    <div className="flex items-center gap-1 p-1 bg-secondary rounded-xl">
+    <div className="flex items-center w-full gap-0.5 p-1 bg-secondary rounded-xl">
       {options.map((option) => {
         const Icon = option.icon
         return (
@@ -89,7 +89,7 @@ export function ThemeToggle() {
             key={option.value}
             onClick={(e) => handleThemeChange(option.value, e)}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium",
+              "flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs font-medium whitespace-nowrap",
               "transition-all duration-200 ease-out",
               "hover:scale-[1.02]",
               "active:scale-[0.95]",
@@ -101,10 +101,10 @@ export function ThemeToggle() {
             title={option.label}
           >
             <Icon className={cn(
-              "h-4 w-4 transition-transform duration-300",
+              "h-3.5 w-3.5 shrink-0 transition-transform duration-300",
               theme === option.value && "scale-110"
             )} />
-            <span className="hidden sm:inline">{option.label}</span>
+            <span className="truncate">{option.label}</span>
           </button>
         )
       })}

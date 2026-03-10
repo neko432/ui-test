@@ -226,9 +226,9 @@ export function VoiceSettings() {
             className="w-full"
           />
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>0.5x</span>
-            <span>1.0x</span>
-            <span>2.0x</span>
+            <span>遅い (0.5x)</span>
+            <span>普通 (1.0x)</span>
+            <span>速い (2.0x)</span>
           </div>
         </div>
       </SettingsCard>

@@ -154,7 +154,9 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
           <div className="mb-2 px-2">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">テーマ</span>
           </div>
-          <ThemeToggle />
+          <div className="w-full">
+            <ThemeToggle />
+          </div>
         </div>
 
         {/* Footer with Version and Status */}
