@@ -3,11 +3,12 @@
 import { useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Volume2, Mic, Play, CheckCircle2, XCircle, RefreshCw } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
+import { AnimatedButton } from "@/components/ui/animated-button"
+import { AnimatedSlider } from "@/components/ui/animated-slider"
+import { useEffects } from "@/components/effects-provider"
 
 export function VoiceSettings() {
   const [ttsEngine, setTtsEngine] = useState("edge-tts")
@@ -18,6 +19,7 @@ export function VoiceSettings() {
   const [edgeTtsStatus, setEdgeTtsStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
   const [isPlaying, setIsPlaying] = useState(false)
   const [minSpeakCharacters, setMinSpeakCharacters] = useState(5)
+  const { addStars } = useEffects()
 
   const testVoicevox = () => {
     setVoicevoxStatus("testing")
@@ -103,11 +105,12 @@ export function VoiceSettings() {
 
           {/* Connection Test */}
           <div className="flex items-center gap-3">
-            <Button 
+            <AnimatedButton 
               variant="outline" 
               onClick={testCurrentEngine}
               disabled={getCurrentStatus() === "testing"}
-              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              onStarBurst={addStars}
+              className="gap-2"
             >
               {getCurrentStatus() === "testing" ? (
                 <>
@@ -120,7 +123,7 @@ export function VoiceSettings() {
                   接続テスト
                 </>
               )}
-            </Button>
+            </AnimatedButton>
             {renderStatusIcon(getCurrentStatus())}
             {getCurrentStatus() === "success" && (
               <span className="text-xs text-green-500">接続成功</span>
@@ -156,15 +159,16 @@ export function VoiceSettings() {
                 </SelectContent>
               </Select>
             </div>
-            <Button 
+            <AnimatedButton 
               variant="outline" 
               onClick={playTestAudio}
               disabled={isPlaying}
-              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              onStarBurst={addStars}
+              className="gap-2"
             >
               <Play className={`h-4 w-4 ${isPlaying ? "animate-pulse" : ""}`} />
               {isPlaying ? "再生中..." : "テスト再生"}
-            </Button>
+            </AnimatedButton>
           </div>
         ) : (
           <div className="space-y-4">
@@ -188,15 +192,16 @@ export function VoiceSettings() {
               </Select>
             </div>
 
-            <Button 
+            <AnimatedButton 
               variant="outline" 
               onClick={playTestAudio}
               disabled={isPlaying}
-              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              onStarBurst={addStars}
+              className="gap-2"
             >
               <Play className={`h-4 w-4 ${isPlaying ? "animate-pulse" : ""}`} />
               {isPlaying ? "再生中..." : "テスト再生"}
-            </Button>
+            </AnimatedButton>
             {voicevoxStatus === "error" && (
               <p className="text-xs text-destructive">
                 VOICEVOXに接続できません。アプリが起動しているか確認してください。
@@ -217,7 +222,7 @@ export function VoiceSettings() {
             <Label className="text-sm font-medium">速度</Label>
             <span className="text-sm font-medium text-primary">{speed[0].toFixed(1)}x</span>
           </div>
-          <Slider
+          <AnimatedSlider
             value={speed}
             onValueChange={setSpeed}
             min={0.5}
@@ -262,8 +267,8 @@ export function VoiceSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline" className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">リセット</Button>
-        <Button className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">設定を保存</Button>
+        <AnimatedButton variant="outline" onStarBurst={addStars}>リセット</AnimatedButton>
+        <AnimatedButton onStarBurst={addStars}>設定を保存</AnimatedButton>
       </div>
     </div>
   )

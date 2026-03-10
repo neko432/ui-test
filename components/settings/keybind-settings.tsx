@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Keyboard, RotateCcw } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { cn } from "@/lib/utils"
+import { AnimatedButton } from "@/components/ui/animated-button"
+import { useEffects } from "@/components/effects-provider"
+import { playSound } from "@/hooks/use-interaction-effects"
 
 interface Keybind {
   ctrl: boolean
@@ -43,18 +44,17 @@ function formatKeybind(keybind: Keybind): string {
 function KeybindItem({ label, description, defaultKeybind }: KeybindItemProps) {
   const [keybind, setKeybind] = useState<Keybind>(defaultKeybind)
   const [isListening, setIsListening] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     e.preventDefault()
     if (!isListening) return
 
-    // Escapeでキャンセル
     if (e.key === "Escape") {
       setIsListening(false)
       return
     }
 
-    // 修飾キーだけの場合は待機
     if (["Control", "Alt", "Shift", "Meta"].includes(e.key)) {
       return
     }
@@ -69,6 +69,21 @@ function KeybindItem({ label, description, defaultKeybind }: KeybindItemProps) {
       key: keyName.toUpperCase()
     })
     setIsListening(false)
+    playSound("success")
+    setIsAnimating(true)
+    setTimeout(() => setIsAnimating(false), 300)
+  }
+
+  const handleClick = () => {
+    setIsListening(true)
+    playSound("click")
+  }
+
+  const handleReset = () => {
+    setKeybind(defaultKeybind)
+    playSound("click")
+    setIsAnimating(true)
+    setTimeout(() => setIsAnimating(false), 300)
   }
 
   const displayText = formatKeybind(keybind)
@@ -81,32 +96,35 @@ function KeybindItem({ label, description, defaultKeybind }: KeybindItemProps) {
       </div>
       <div className="flex items-center gap-2">
         <button
-          onClick={() => setIsListening(true)}
+          onClick={handleClick}
           onKeyDown={handleKeyDown}
           onBlur={() => setIsListening(false)}
           className={cn(
             "min-w-[100px] px-4 py-2 rounded-lg text-sm font-mono font-medium border transition-all duration-200",
             isListening 
               ? "border-primary bg-primary/10 text-primary animate-pulse" 
-              : "border-border bg-secondary text-foreground hover:border-primary/50"
+              : "border-border bg-secondary text-foreground hover:border-primary/50 hover:scale-[1.02] active:scale-[0.98]",
+            isAnimating && "animate-bounce-scale"
           )}
         >
           {isListening ? "キーを入力..." : displayText}
         </button>
-        <Button 
+        <AnimatedButton 
           variant="ghost" 
           size="icon"
-          onClick={() => setKeybind(defaultKeybind)}
+          onClick={handleReset}
           className="h-8 w-8"
         >
           <RotateCcw className="h-4 w-4" />
-        </Button>
+        </AnimatedButton>
       </div>
     </div>
   )
 }
 
 export function KeybindSettings() {
+  const { addStars } = useEffects()
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -142,8 +160,8 @@ export function KeybindSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline">すべてリセット</Button>
-        <Button>設定を保存</Button>
+        <AnimatedButton variant="outline" onStarBurst={addStars}>すべてリセット</AnimatedButton>
+        <AnimatedButton onStarBurst={addStars}>設定を保存</AnimatedButton>
       </div>
     </div>
   )

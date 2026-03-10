@@ -2,15 +2,17 @@
 
 import { useRef } from "react"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
 import { ImageIcon, Trash2, Upload } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { useBackground } from "@/components/background-provider"
+import { AnimatedButton } from "@/components/ui/animated-button"
+import { AnimatedSlider } from "@/components/ui/animated-slider"
+import { useEffects } from "@/components/effects-provider"
 
 export function BackgroundSettings() {
   const { backgroundImage, setBackgroundImage, blurAmount, setBlurAmount, opacity, setOpacity } = useBackground()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { addStars } = useEffects()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -72,7 +74,7 @@ export function BackgroundSettings() {
                 <Label className="text-sm font-medium">ぼかし度</Label>
                 <span className="text-sm text-muted-foreground">{blurAmount}px</span>
               </div>
-              <Slider
+              <AnimatedSlider
                 value={[blurAmount]}
                 onValueChange={(value) => setBlurAmount(value[0])}
                 min={0}
@@ -88,7 +90,7 @@ export function BackgroundSettings() {
                 <Label className="text-sm font-medium">透明度</Label>
                 <span className="text-sm text-muted-foreground">{Math.round(opacity * 100)}%</span>
               </div>
-              <Slider
+              <AnimatedSlider
                 value={[opacity * 100]}
                 onValueChange={(value) => setOpacity(value[0] / 100)}
                 min={10}
@@ -99,27 +101,29 @@ export function BackgroundSettings() {
             </div>
 
             <div className="flex gap-2 max-w-sm">
-              <Button
+              <AnimatedButton
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
+                onStarBurst={addStars}
                 className="flex-1"
               >
                 <Upload className="h-4 w-4 mr-2" />
                 変更
-              </Button>
-              <Button
+              </AnimatedButton>
+              <AnimatedButton
                 variant="destructive"
                 onClick={handleRemoveBackground}
+                onStarBurst={addStars}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 削除
-              </Button>
+              </AnimatedButton>
             </div>
           </div>
         ) : (
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full max-w-sm aspect-video rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-secondary/50 transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer"
+            className="w-full max-w-sm aspect-video rounded-xl border-2 border-dashed border-border hover:border-primary/50 hover:bg-secondary/50 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] flex flex-col items-center justify-center gap-3 cursor-pointer"
           >
             <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center">
               <Upload className="h-6 w-6 text-muted-foreground" />

@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Languages, Key, ScanText, RefreshCw, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
+import { AnimatedSwitch } from "@/components/ui/animated-switch"
+import { AnimatedButton } from "@/components/ui/animated-button"
+import { AnimatedSlider } from "@/components/ui/animated-slider"
+import { useEffects } from "@/components/effects-provider"
 
 export function TranslationSettings() {
   const [groqKey, setGroqKey] = useState("")
@@ -21,11 +22,11 @@ export function TranslationSettings() {
   const [primaryEngine, setPrimaryEngine] = useState("groq")
   const [autoFallback, setAutoFallback] = useState(true)
   const [translationShortness, setTranslationShortness] = useState([1])
+  const { addStars } = useEffects()
 
   const testConnection = (type: "groq" | "gemini") => {
     const setStatus = type === "groq" ? setGroqStatus : setGeminiStatus
     setStatus("testing")
-    // Simulate API test
     setTimeout(() => {
       setStatus(Math.random() > 0.3 ? "success" : "error")
     }, 1500)
@@ -100,25 +101,26 @@ export function TranslationSettings() {
                   value={groqKey}
                   onChange={(e) => setGroqKey(e.target.value)}
                   placeholder="gsk_xxxxxxxxxxxxxxxx"
-                  className="pr-10"
+                  className="pr-10 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                 />
                 <button
                   type="button"
                   onClick={() => setShowGroqKey(!showGroqKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showGroqKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <Button 
+              <AnimatedButton 
                 variant="outline" 
                 onClick={() => testConnection("groq")}
                 disabled={!groqKey || groqStatus === "testing"}
+                onStarBurst={addStars}
                 className="gap-2"
               >
                 {renderStatusIcon(groqStatus)}
                 接続テスト
-              </Button>
+              </AnimatedButton>
             </div>
           </div>
 
@@ -132,25 +134,26 @@ export function TranslationSettings() {
                   value={geminiKey}
                   onChange={(e) => setGeminiKey(e.target.value)}
                   placeholder="AIzaxxxxxxxxxxxxxxxx"
-                  className="pr-10"
+                  className="pr-10 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
                 />
                 <button
                   type="button"
                   onClick={() => setShowGeminiKey(!showGeminiKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showGeminiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <Button 
+              <AnimatedButton 
                 variant="outline" 
                 onClick={() => testConnection("gemini")}
                 disabled={!geminiKey || geminiStatus === "testing"}
+                onStarBurst={addStars}
                 className="gap-2"
               >
                 {renderStatusIcon(geminiStatus)}
                 接続テスト
-              </Button>
+              </AnimatedButton>
             </div>
           </div>
         </div>
@@ -165,7 +168,7 @@ export function TranslationSettings() {
         <div className="space-y-2">
           <Label className="text-sm font-medium">OCRエンジン</Label>
           <Select value={ocrEngine} onValueChange={setOcrEngine}>
-            <SelectTrigger className="w-full max-w-xs">
+            <SelectTrigger className="w-full max-w-xs transition-all duration-200 hover:border-primary/50">
               <SelectValue placeholder="エンジンを選択" />
             </SelectTrigger>
             <SelectContent>
@@ -192,7 +195,7 @@ export function TranslationSettings() {
             <Label className="text-sm font-medium">短く翻訳</Label>
             <span className="text-sm font-medium text-primary">{getShortnessLabel(translationShortness[0])}</span>
           </div>
-          <Slider
+          <AnimatedSlider
             value={translationShortness}
             onValueChange={setTranslationShortness}
             min={0}
@@ -221,7 +224,7 @@ export function TranslationSettings() {
           <div className="space-y-2">
             <Label className="text-sm font-medium">プライマリエンジン</Label>
             <Select value={primaryEngine} onValueChange={setPrimaryEngine}>
-              <SelectTrigger className="w-full max-w-xs">
+              <SelectTrigger className="w-full max-w-xs transition-all duration-200 hover:border-primary/50">
                 <SelectValue placeholder="エンジンを選択" />
               </SelectTrigger>
               <SelectContent>
@@ -241,15 +244,15 @@ export function TranslationSettings() {
               <Label className="text-sm font-medium">自動フォールバック</Label>
               <p className="text-xs text-muted-foreground">プライマリエンジン失敗時に自動で切り替え</p>
             </div>
-            <Switch checked={autoFallback} onCheckedChange={setAutoFallback} />
+            <AnimatedSwitch checked={autoFallback} onCheckedChange={setAutoFallback} />
           </div>
         </div>
       </SettingsCard>
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline">リセット</Button>
-        <Button>設定を保存</Button>
+        <AnimatedButton variant="outline" onStarBurst={addStars}>リセット</AnimatedButton>
+        <AnimatedButton onStarBurst={addStars}>設定を保存</AnimatedButton>
       </div>
     </div>
   )
