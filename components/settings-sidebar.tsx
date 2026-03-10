@@ -91,6 +91,7 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
   const [currentMessage, setCurrentMessage] = useState("")
   const [isIconPressed, setIsIconPressed] = useState(false)
   const [messageAnimation, setMessageAnimation] = useState<"enter" | "exit" | "idle">("idle")
+  const [animationType, setAnimationType] = useState(0)
 
   // Handle icon click to show random message
   const handleIconClick = () => {
