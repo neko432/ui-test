@@ -73,6 +73,10 @@ function Slider({
     
     onValueChange?.(newValue)
   }
+  
+  // Handle drag state
+  const handlePointerDown = () => setIsDragging(true)
+  const handlePointerUp = () => setIsDragging(false)
 
   return (
     <SliderPrimitive.Root
@@ -83,8 +87,9 @@ function Slider({
       min={min}
       max={max}
       onValueChange={handleValueChange}
-      onPointerDown={() => setIsDragging(true)}
-      onPointerUp={() => setIsDragging(false)}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
       className={cn(
         'relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col',
         'group',
@@ -96,7 +101,7 @@ function Slider({
         data-slot="slider-track"
         className={cn(
           'bg-muted relative grow overflow-hidden rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5',
-          'transition-all duration-200',
+          'transition-[height,width] duration-200',
           'group-hover:data-[orientation=horizontal]:h-2',
           isDragging && 'data-[orientation=horizontal]:h-2.5'
         )}
@@ -105,7 +110,7 @@ function Slider({
           data-slot="slider-range"
           className={cn(
             'bg-primary absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full',
-            'transition-all duration-150',
+            // Remove transition on range so it follows thumb instantly
             showRipple && 'animate-slider-ripple'
           )}
         />
