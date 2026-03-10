@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ReactNode, useState } from "react"
+import { ReactNode, useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 
 interface SettingsCardProps {
@@ -14,13 +14,39 @@ interface SettingsCardProps {
 
 export function SettingsCard({ icon, title, description, children, badge }: SettingsCardProps) {
   const [isHovered, setIsHovered] = useState(false)
-  const [hasFocusWithin, setHasFocusWithin] = useState(false)
+  const [hasOpenPopover, setHasOpenPopover] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
 
-  // Keep highlight active when either hovered OR has focus within (e.g., dropdown open)
-  const isActive = isHovered || hasFocusWithin
+  // Check if any select/popover is open within this card
+  useEffect(() => {
+    const checkForOpenPopover = () => {
+      if (!cardRef.current) return
+      
+      // Check for any open select triggers within this card
+      const openTrigger = cardRef.current.querySelector('[data-state="open"]')
+      setHasOpenPopover(!!openTrigger)
+    }
+
+    // Use MutationObserver to watch for data-state changes
+    const observer = new MutationObserver(checkForOpenPopover)
+    
+    if (cardRef.current) {
+      observer.observe(cardRef.current, {
+        attributes: true,
+        attributeFilter: ['data-state'],
+        subtree: true
+      })
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
+  // Keep highlight active when either hovered OR has open popover
+  const isActive = isHovered || hasOpenPopover
 
   return (
     <Card 
+      ref={cardRef}
       className={cn(
         "settings-card overflow-hidden border-border/50 shadow-sm",
         "transition-all duration-300 ease-out",
@@ -29,13 +55,6 @@ export function SettingsCard({ icon, title, description, children, badge }: Sett
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onFocusCapture={() => setHasFocusWithin(true)}
-      onBlurCapture={(e) => {
-        // Only remove focus state if focus is leaving the card entirely
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-          setHasFocusWithin(false)
-        }
-      }}
     >
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">

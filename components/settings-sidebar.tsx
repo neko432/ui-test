@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { 
   Settings, 
   Languages, 
@@ -17,6 +17,20 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import type { SettingsSection } from "@/app/page"
 
 export type TranslatorStatus = "translating" | "paused" | "stopped"
+
+// Default messages - can be replaced with custom file later
+const defaultMessages = [
+  "今日も頑張ろう！",
+  "設定いじってる？",
+  "Apex楽しんでね",
+  "翻訳精度上げたい...",
+  "お腹すいた",
+  "眠い...",
+  "いい試合だった？",
+  "チャンピオン取れた？",
+  "カスタム設定最高",
+  "またね！",
+]
 
 interface SettingsSidebarProps {
   activeSection: SettingsSection
@@ -73,6 +87,33 @@ function createRipple(element: HTMLElement, e: React.MouseEvent) {
 export function SettingsSidebar({ activeSection, onSectionChange, status = "stopped" }: SettingsSidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [pressedItem, setPressedItem] = useState<string | null>(null)
+  const [showMessage, setShowMessage] = useState(false)
+  const [currentMessage, setCurrentMessage] = useState("")
+  const [isIconPressed, setIsIconPressed] = useState(false)
+  const [messageAnimation, setMessageAnimation] = useState<"enter" | "exit" | "idle">("idle")
+
+  // Handle icon click to show random message
+  const handleIconClick = () => {
+    setIsIconPressed(true)
+    setTimeout(() => setIsIconPressed(false), 150)
+    
+    // Pick random message
+    const randomIndex = Math.floor(Math.random() * defaultMessages.length)
+    setCurrentMessage(defaultMessages[randomIndex])
+    
+    // Show message with animation
+    setShowMessage(true)
+    setMessageAnimation("enter")
+    
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      setMessageAnimation("exit")
+      setTimeout(() => {
+        setShowMessage(false)
+        setMessageAnimation("idle")
+      }, 300)
+    }, 3000)
+  }
 
   const handleItemClick = (item: typeof menuItems[0], e: React.MouseEvent<HTMLButtonElement>) => {
     setPressedItem(item.id)
@@ -108,14 +149,44 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
         isMobileOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Header */}
-        <div className="flex items-center gap-3 px-6 py-6 border-b border-border">
-          <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-primary transition-all duration-300 hover:scale-110 hover:rotate-3">
-            <Crosshair className="h-6 w-6 text-primary-foreground" />
-          </div>
+        <div className="flex items-center gap-3 px-6 py-6 border-b border-border relative">
+          <button
+            onClick={handleIconClick}
+            className={cn(
+              "flex items-center justify-center h-10 w-10 rounded-xl bg-primary",
+              "transition-all duration-300 ease-out",
+              "hover:scale-110 hover:rotate-3 hover:shadow-lg hover:shadow-primary/30",
+              "active:scale-95",
+              isIconPressed && "scale-90 rotate-12"
+            )}
+          >
+            <Crosshair className={cn(
+              "h-6 w-6 text-primary-foreground transition-transform duration-300",
+              isIconPressed && "rotate-180"
+            )} />
+          </button>
           <div>
             <h1 className="text-lg font-bold text-foreground">Apex Chat Translator</h1>
             <p className="text-xs text-muted-foreground">Settings</p>
           </div>
+          
+          {/* Random Message Bubble */}
+          {showMessage && (
+            <div 
+              className={cn(
+                "absolute left-16 top-full mt-2 z-50",
+                "max-w-[200px] px-4 py-2 rounded-2xl rounded-tl-sm",
+                "bg-primary text-primary-foreground text-sm font-medium",
+                "shadow-lg shadow-primary/20",
+                "before:content-[''] before:absolute before:-top-2 before:left-3",
+                "before:border-8 before:border-transparent before:border-b-primary",
+                messageAnimation === "enter" && "animate-message-enter",
+                messageAnimation === "exit" && "animate-message-exit"
+              )}
+            >
+              {currentMessage}
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
