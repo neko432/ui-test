@@ -4,10 +4,10 @@ import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
-import { playSound, StarParticle } from "@/hooks/use-interaction-effects"
+import { StarParticle } from "@/hooks/use-interaction-effects"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
@@ -56,13 +56,10 @@ function AnimatedButton({
   ...props
 }: AnimatedButtonProps) {
   const Comp = asChild ? Slot : "button"
-  const [isPressed, setIsPressed] = React.useState(false)
   const [ripples, setRipples] = React.useState<{ id: number; x: number; y: number }[]>([])
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    playSound("click")
-    
-    // リップルエフェクト
+    // yui540風のリップルエフェクト
     const rect = e.currentTarget.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -70,20 +67,20 @@ function AnimatedButton({
     setRipples(prev => [...prev, newRipple])
     setTimeout(() => {
       setRipples(prev => prev.filter(r => r.id !== newRipple.id))
-    }, 600)
+    }, 800)
 
     // レアアニメーションチェック
     if (Math.random() < RARE_CHANCE && onStarBurst) {
-      const colors = ["#FFD700", "#FF6B6B", "#4ECDC4", "#A78BFA", "#F472B6"]
-      const stars: StarParticle[] = Array.from({ length: 12 }, (_, i) => ({
+      const colors = ["#FFD700", "#FF6B6B", "#4ECDC4", "#A78BFA", "#F472B6", "#34D399", "#60A5FA"]
+      const stars: StarParticle[] = Array.from({ length: 15 }, (_, i) => ({
         id: Date.now() + i,
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-        size: Math.random() * 12 + 8,
+        x: rect.left + rect.width / 2 + (Math.random() - 0.5) * 150,
+        y: rect.top + rect.height / 2 + (Math.random() - 0.5) * 150,
+        size: Math.random() * 16 + 10,
         rotation: Math.random() * 360,
         color: colors[Math.floor(Math.random() * colors.length)],
+        delay: Math.random() * 0.2,
       }))
-      playSound("rare")
       onStarBurst(stars)
     }
     
@@ -96,23 +93,20 @@ function AnimatedButton({
       className={cn(
         buttonVariants({ variant, size }),
         "relative overflow-hidden",
-        "transition-all duration-150 ease-out",
-        "hover:scale-[1.02] hover:shadow-md",
-        "active:scale-[0.96] active:shadow-sm",
-        isPressed && "scale-[0.96]",
+        // yui540風のふわっとした弾むアニメーション
+        "transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+        "hover:scale-[1.03] hover:shadow-lg hover:-translate-y-0.5",
+        "active:scale-[0.95] active:shadow-sm active:translate-y-0",
         className
       )}
-      onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => setIsPressed(false)}
-      onMouseLeave={() => setIsPressed(false)}
       onClick={handleClick}
       {...props}
     >
-      {/* リップルエフェクト */}
+      {/* yui540風の柔らかいリップルエフェクト */}
       {ripples.map(ripple => (
         <span
           key={ripple.id}
-          className="absolute rounded-full bg-white/30 animate-ripple pointer-events-none"
+          className="absolute rounded-full bg-white/25 pointer-events-none animate-yui-ripple"
           style={{
             left: ripple.x,
             top: ripple.y,
