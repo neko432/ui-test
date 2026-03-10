@@ -15,6 +15,7 @@ export function VoiceSettings() {
   const [voicevoxSpeaker, setVoicevoxSpeaker] = useState("zundamon")
   const [speed, setSpeed] = useState([1.0])
   const [voicevoxStatus, setVoicevoxStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
+  const [edgeTtsStatus, setEdgeTtsStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
   const [isPlaying, setIsPlaying] = useState(false)
   const [minSpeakCharacters, setMinSpeakCharacters] = useState(5)
 
@@ -23,6 +24,25 @@ export function VoiceSettings() {
     setTimeout(() => {
       setVoicevoxStatus(Math.random() > 0.3 ? "success" : "error")
     }, 1500)
+  }
+
+  const testEdgeTts = () => {
+    setEdgeTtsStatus("testing")
+    setTimeout(() => {
+      setEdgeTtsStatus(Math.random() > 0.2 ? "success" : "error")
+    }, 1500)
+  }
+
+  const testCurrentEngine = () => {
+    if (ttsEngine === "edge-tts") {
+      testEdgeTts()
+    } else {
+      testVoicevox()
+    }
+  }
+
+  const getCurrentStatus = () => {
+    return ttsEngine === "edge-tts" ? edgeTtsStatus : voicevoxStatus
   }
 
   const playTestAudio = () => {
@@ -62,22 +82,55 @@ export function VoiceSettings() {
         title="TTSエンジン"
         description="テキスト読み上げエンジンの選択"
       >
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">エンジン</Label>
-          <Select value={ttsEngine} onValueChange={setTtsEngine}>
-            <SelectTrigger className="w-full max-w-xs">
-              <SelectValue placeholder="エンジンを選択" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="edge-tts">Edge-TTS（推奨）</SelectItem>
-              <SelectItem value="voicevox">VOICEVOX</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            {ttsEngine === "edge-tts" 
-              ? "Microsoft Edgeの音声合成を使用します。追加インストール不要です。" 
-              : "VOICEVOXを使用します。VOICEVOXアプリが起動している必要があります。"}
-          </p>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">エンジン</Label>
+            <Select value={ttsEngine} onValueChange={(v) => { setTtsEngine(v); setEdgeTtsStatus("idle"); setVoicevoxStatus("idle"); }}>
+              <SelectTrigger className="w-full max-w-xs transition-all duration-200 hover:border-primary/50">
+                <SelectValue placeholder="エンジンを選択" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="edge-tts">Edge-TTS（推奨）</SelectItem>
+                <SelectItem value="voicevox">VOICEVOX</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {ttsEngine === "edge-tts" 
+                ? "Microsoft Edgeの音声合成を使用します。追加インストール不要です。" 
+                : "VOICEVOXを使用します。VOICEVOXアプリが起動している必要があります。"}
+            </p>
+          </div>
+
+          {/* Connection Test */}
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              onClick={testCurrentEngine}
+              disabled={getCurrentStatus() === "testing"}
+              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {getCurrentStatus() === "testing" ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  接続テスト中...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4" />
+                  接続テスト
+                </>
+              )}
+            </Button>
+            {renderStatusIcon(getCurrentStatus())}
+            {getCurrentStatus() === "success" && (
+              <span className="text-xs text-green-500">接続成功</span>
+            )}
+            {getCurrentStatus() === "error" && (
+              <span className="text-xs text-destructive">
+                {ttsEngine === "edge-tts" ? "Edge-TTSに接続できません" : "VOICEVOXに接続できません"}
+              </span>
+            )}
+          </div>
         </div>
       </SettingsCard>
 
@@ -92,7 +145,7 @@ export function VoiceSettings() {
             <div className="space-y-2">
               <Label className="text-sm font-medium">音声</Label>
               <Select value={edgeVoice} onValueChange={setEdgeVoice}>
-                <SelectTrigger className="w-full max-w-xs">
+                <SelectTrigger className="w-full max-w-xs transition-all duration-200 hover:border-primary/50">
                   <SelectValue placeholder="音声を選択" />
                 </SelectTrigger>
                 <SelectContent>
@@ -107,7 +160,7 @@ export function VoiceSettings() {
               variant="outline" 
               onClick={playTestAudio}
               disabled={isPlaying}
-              className="gap-2"
+              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Play className={`h-4 w-4 ${isPlaying ? "animate-pulse" : ""}`} />
               {isPlaying ? "再生中..." : "テスト再生"}
@@ -118,15 +171,19 @@ export function VoiceSettings() {
             <div className="space-y-2">
               <Label className="text-sm font-medium">話者</Label>
               <Select value={voicevoxSpeaker} onValueChange={setVoicevoxSpeaker}>
-                <SelectTrigger className="w-full max-w-xs">
+                <SelectTrigger className="w-full max-w-xs transition-all duration-200 hover:border-primary/50">
                   <SelectValue placeholder="話者を選択" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[200px] overflow-y-auto">
                   <SelectItem value="zundamon">ずんだもん</SelectItem>
                   <SelectItem value="shikoku-metan">四国めたん</SelectItem>
                   <SelectItem value="kasukabe-tsumugi">春日部つむぎ</SelectItem>
                   <SelectItem value="nemo">九州そら</SelectItem>
                   <SelectItem value="mochiko">もち子さん</SelectItem>
+                  <SelectItem value="takehiro">剣崎雌雄</SelectItem>
+                  <SelectItem value="hakuya-misaki">白上フブキ</SelectItem>
+                  <SelectItem value="chibitono">小夜</SelectItem>
+                  <SelectItem value="torotoro">雨晴はう</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -135,7 +192,7 @@ export function VoiceSettings() {
               variant="outline" 
               onClick={playTestAudio}
               disabled={isPlaying}
-              className="gap-2"
+              className="gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Play className={`h-4 w-4 ${isPlaying ? "animate-pulse" : ""}`} />
               {isPlaying ? "再生中..." : "テスト再生"}
@@ -192,7 +249,7 @@ export function VoiceSettings() {
                 max="100"
                 value={minSpeakCharacters}
                 onChange={(e) => setMinSpeakCharacters(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-20"
+                className="w-20 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
               />
               <span className="text-sm text-muted-foreground">文字以上のメッセージだけ読み上げる</span>
             </div>
@@ -205,8 +262,8 @@ export function VoiceSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline">リセット</Button>
-        <Button>設定を保存</Button>
+        <Button variant="outline" className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">リセット</Button>
+        <Button className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">設定を保存</Button>
       </div>
     </div>
   )

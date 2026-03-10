@@ -10,7 +10,6 @@ import { BackgroundSettings } from "@/components/settings/background-settings"
 
 export function GeneralSettings() {
   const [autoStart, setAutoStart] = useState(true)
-  const [minimizeToTray, setMinimizeToTray] = useState(true)
 
   return (
     <div className="space-y-6">
@@ -31,21 +30,12 @@ export function GeneralSettings() {
         title="アプリケーション"
         description="起動と動作に関する設定"
       >
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-sm font-medium">Windows起動時に自動起動</Label>
-              <p className="text-xs text-muted-foreground">PCを起動した際に自動的にアプリを起動します</p>
-            </div>
-            <Switch checked={autoStart} onCheckedChange={setAutoStart} />
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label className="text-sm font-medium">Windows起動時に自動起動</Label>
+            <p className="text-xs text-muted-foreground">PCを起動した際に自動的にアプリを起動します</p>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-sm font-medium">閉じる時にトレイに最小化</Label>
-              <p className="text-xs text-muted-foreground">ウィンドウを閉じてもバックグラウンドで実行し続けます</p>
-            </div>
-            <Switch checked={minimizeToTray} onCheckedChange={setMinimizeToTray} />
-          </div>
+          <Switch checked={autoStart} onCheckedChange={setAutoStart} />
         </div>
       </SettingsCard>
 
@@ -54,8 +44,8 @@ export function GeneralSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline">リセット</Button>
-        <Button>設定を保存</Button>
+        <Button variant="outline" className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">リセット</Button>
+        <Button className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">設定を保存</Button>
       </div>
     </div>
   )

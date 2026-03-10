@@ -6,16 +6,17 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Wrench, Database, Cpu, Shield, Trash2, Download, AlertTriangle, Monitor, Crosshair } from "lucide-react"
+import { Wrench, Shield, Trash2, AlertTriangle, Monitor, Crosshair, Clock, FileText } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export function AdvancedSettings() {
-  const [hardwareAccel, setHardwareAccel] = useState(true)
   const [debugMode, setDebugMode] = useState(false)
-  const [analytics, setAnalytics] = useState(true)
   const [isCalibrating, setIsCalibrating] = useState(false)
   const [currentResolution, setCurrentResolution] = useState({ width: 1920, height: 1080 })
+  const [captureInterval, setCaptureInterval] = useState(100)
+  const [ignorePatterns, setIgnorePatterns] = useState("^\\d+$\n^[A-Za-z]$\n^https?://.*")
 
   const handleCalibration = () => {
     setIsCalibrating(true)
@@ -46,60 +47,6 @@ export function AdvancedSettings() {
           これらの設定は上級ユーザー向けです。変更を行う前に各設定の影響を理解してください。
         </AlertDescription>
       </Alert>
-
-      {/* Performance */}
-      <SettingsCard
-        icon={<Cpu className="h-5 w-5 text-primary" />}
-        title="パフォーマンス"
-        description="パフォーマンス関連の設定"
-      >
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label className="text-sm font-medium">ハードウェアアクセラレーション</Label>
-            <p className="text-xs text-muted-foreground">GPUを使用してパフォーマンスを向上</p>
-          </div>
-          <Switch checked={hardwareAccel} onCheckedChange={setHardwareAccel} />
-        </div>
-      </SettingsCard>
-
-      {/* Data */}
-      <SettingsCard
-        icon={<Database className="h-5 w-5 text-primary" />}
-        title="データ管理"
-        description="データの保存とエクスポート"
-      >
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-sm font-medium">使用状況分析</Label>
-              <p className="text-xs text-muted-foreground">匿名の使用データを送信して改善に貢献</p>
-            </div>
-            <Switch checked={analytics} onCheckedChange={setAnalytics} />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">データ保存先</Label>
-            <div className="flex gap-2">
-              <Input 
-                value="C:\Users\Player\ApexTools" 
-                readOnly
-                className="flex-1"
-              />
-              <Button variant="outline" size="icon">
-                <Download className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="flex-1">
-              <Download className="h-4 w-4 mr-2" />
-              設定をエクスポート
-            </Button>
-            <Button variant="outline" className="flex-1">
-              設定をインポート
-            </Button>
-          </div>
-        </div>
-      </SettingsCard>
 
       {/* Developer */}
       <SettingsCard
@@ -161,7 +108,7 @@ export function AdvancedSettings() {
             <Button 
               onClick={handleCalibration}
               disabled={isCalibrating}
-              className="w-full"
+              className="w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               variant={isCalibrating ? "secondary" : "default"}
             >
               {isCalibrating ? (
@@ -176,6 +123,52 @@ export function AdvancedSettings() {
                 </>
               )}
             </Button>
+          </div>
+
+          {/* Capture Interval */}
+          <div className="p-4 rounded-lg border border-border/50 bg-secondary/30">
+            <div className="flex items-center gap-3 mb-3">
+              <Clock className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-medium">キャプチャ間隔</Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                min="50"
+                max="1000"
+                step="10"
+                value={captureInterval}
+                onChange={(e) => setCaptureInterval(Math.max(50, Math.min(1000, parseInt(e.target.value) || 100)))}
+                className="w-24 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+              />
+              <span className="text-sm text-muted-foreground">ミリ秒ごとにキャプチャ</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              値を小さくすると反応が速くなりますが、CPU負荷が高くなります（推奨: 100ms）
+            </p>
+          </div>
+
+          {/* Ignore Patterns */}
+          <div className="p-4 rounded-lg border border-border/50 bg-secondary/30">
+            <div className="flex items-center gap-3 mb-3">
+              <FileText className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-medium">翻訳しないパターン</Label>
+            </div>
+            <Textarea
+              value={ignorePatterns}
+              onChange={(e) => setIgnorePatterns(e.target.value)}
+              placeholder="正規表現パターンを1行に1つ入力"
+              className="min-h-[120px] font-mono text-sm transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              正規表現パターンを1行に1つ入力してください。マッチした文字列は翻訳されません。
+            </p>
+            <div className="mt-2 p-2 rounded bg-muted/50 text-xs text-muted-foreground">
+              <p className="font-medium mb-1">例:</p>
+              <code className="block">{'^\d+$'} - 数字のみ</code>
+              <code className="block">{'[A-Za-z]$'} - 英字1文字</code>
+              <code className="block">{'https?://.*'} - URL</code>
+            </div>
           </div>
         </div>
       </SettingsCard>
@@ -206,8 +199,8 @@ export function AdvancedSettings() {
 
       {/* Save Button */}
       <div className="flex justify-end gap-3">
-        <Button variant="outline">リセット</Button>
-        <Button>設定を保存</Button>
+        <Button variant="outline" className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">リセット</Button>
+        <Button className="transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">設定を保存</Button>
       </div>
     </div>
   )

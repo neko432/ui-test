@@ -11,7 +11,7 @@ interface SettingsCardProps {
 
 export function SettingsCard({ icon, title, description, children, badge }: SettingsCardProps) {
   return (
-    <Card className="overflow-hidden border-border/50 shadow-sm">
+    <Card className="overflow-hidden border-border/50 shadow-sm transition-all duration-300 hover:shadow-md hover:border-primary/30">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
