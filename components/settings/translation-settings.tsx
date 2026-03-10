@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Languages, Key, ScanText, RefreshCw, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react"
@@ -19,6 +20,7 @@ export function TranslationSettings() {
   const [ocrEngine, setOcrEngine] = useState("windows")
   const [primaryEngine, setPrimaryEngine] = useState("groq")
   const [autoFallback, setAutoFallback] = useState(true)
+  const [translationShortness, setTranslationShortness] = useState([1])
 
   const testConnection = (type: "groq" | "gemini") => {
     const setStatus = type === "groq" ? setGroqStatus : setGeminiStatus
@@ -27,6 +29,32 @@ export function TranslationSettings() {
     setTimeout(() => {
       setStatus(Math.random() > 0.3 ? "success" : "error")
     }, 1500)
+  }
+
+  const getShortnessLabel = (value: number) => {
+    switch (value) {
+      case 0:
+        return "弱"
+      case 1:
+        return "標準"
+      case 2:
+        return "強"
+      default:
+        return "標準"
+    }
+  }
+
+  const getShortnessDescription = (value: number) => {
+    switch (value) {
+      case 0:
+        return "元の意味を保ちつつ、ほんの少しだけ短くします。"
+      case 1:
+        return "読み上げ向けにバランスよく短くします（おすすめ）。"
+      case 2:
+        return "できるだけ短く要約して翻訳します。"
+      default:
+        return "読み上げ向けにバランスよく短くします（おすすめ）。"
+    }
   }
 
   const renderStatusIcon = (status: "idle" | "testing" | "success" | "error") => {
@@ -149,6 +177,36 @@ export function TranslationSettings() {
             {ocrEngine === "windows" 
               ? "Windowsの標準OCR機能を使用します。軽量で高速です。" 
               : "EasyOCRを使用します。精度が高いですが、やや遅いです。"}
+          </p>
+        </div>
+      </SettingsCard>
+
+      {/* Translation Length */}
+      <SettingsCard
+        icon={<Languages className="h-5 w-5 text-primary" />}
+        title="翻訳の長さ"
+        description="翻訳結果の文章量を調整します"
+      >
+        <div className="space-y-4 max-w-sm">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">短く翻訳</Label>
+            <span className="text-sm font-medium text-primary">{getShortnessLabel(translationShortness[0])}</span>
+          </div>
+          <Slider
+            value={translationShortness}
+            onValueChange={setTranslationShortness}
+            min={0}
+            max={2}
+            step={1}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground px-0.5">
+            <span>弱</span>
+            <span>標準</span>
+            <span>強</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {getShortnessDescription(translationShortness[0])}
           </p>
         </div>
       </SettingsCard>

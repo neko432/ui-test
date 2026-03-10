@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Volume2, Mic, Play, CheckCircle2, XCircle, RefreshCw } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
 
@@ -15,6 +16,7 @@ export function VoiceSettings() {
   const [speed, setSpeed] = useState([1.0])
   const [voicevoxStatus, setVoicevoxStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
   const [isPlaying, setIsPlaying] = useState(false)
+  const [minSpeakCharacters, setMinSpeakCharacters] = useState(5)
 
   const testVoicevox = () => {
     setVoicevoxStatus("testing")
@@ -171,6 +173,33 @@ export function VoiceSettings() {
             <span>1.0x</span>
             <span>2.0x</span>
           </div>
+        </div>
+      </SettingsCard>
+
+      {/* Speech Conditions */}
+      <SettingsCard
+        icon={<Volume2 className="h-5 w-5 text-primary" />}
+        title="読み上げ条件"
+        description="どのくらいの長さから読み上げるかを設定します"
+      >
+        <div className="space-y-4 max-w-sm">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">読み上げの最小文字数</Label>
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                min="1"
+                max="100"
+                value={minSpeakCharacters}
+                onChange={(e) => setMinSpeakCharacters(Math.max(1, parseInt(e.target.value) || 1))}
+                className="w-20"
+              />
+              <span className="text-sm text-muted-foreground">文字以上のメッセージだけ読み上げる</span>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            この文字数未満の短いメッセージは読み上げをスキップします。
+          </p>
         </div>
       </SettingsCard>
 
