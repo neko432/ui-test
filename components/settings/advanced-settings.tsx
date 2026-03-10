@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Wrench, Database, Cpu, Shield, Trash2, Download, AlertTriangle } from "lucide-react"
+import { Wrench, Database, Cpu, Shield, Trash2, Download, AlertTriangle, Monitor, Crosshair } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
@@ -14,6 +14,16 @@ export function AdvancedSettings() {
   const [hardwareAccel, setHardwareAccel] = useState(true)
   const [debugMode, setDebugMode] = useState(false)
   const [analytics, setAnalytics] = useState(true)
+  const [isCalibrating, setIsCalibrating] = useState(false)
+  const [currentResolution, setCurrentResolution] = useState({ width: 1920, height: 1080 })
+
+  const handleCalibration = () => {
+    setIsCalibrating(true)
+    // シミュレーション：実際の実装ではキャリブレーション処理を行う
+    setTimeout(() => {
+      setIsCalibrating(false)
+    }, 3000)
+  }
 
   return (
     <div className="space-y-6">
@@ -118,6 +128,54 @@ export function AdvancedSettings() {
                 <SelectItem value="debug">すべて</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Resolution Display */}
+          <div className="p-4 rounded-lg border border-border/50 bg-secondary/30">
+            <div className="flex items-center gap-3 mb-3">
+              <Monitor className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-medium">現在の解像度</Label>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex-1 p-3 rounded-md bg-background border border-border/50 text-center">
+                <p className="text-lg font-semibold text-foreground">{currentResolution.width}</p>
+                <p className="text-xs text-muted-foreground">幅 (px)</p>
+              </div>
+              <span className="text-muted-foreground font-medium">x</span>
+              <div className="flex-1 p-3 rounded-md bg-background border border-border/50 text-center">
+                <p className="text-lg font-semibold text-foreground">{currentResolution.height}</p>
+                <p className="text-xs text-muted-foreground">高さ (px)</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Auto Calibration */}
+          <div className="p-4 rounded-lg border border-primary/30 bg-primary/5">
+            <div className="flex items-center gap-3 mb-2">
+              <Crosshair className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-medium">監視位置の自動キャリブレーション</Label>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              テストキャプチャを表示して監視位置を自動調整します。実行中は画面にオーバーレイが表示されます。
+            </p>
+            <Button 
+              onClick={handleCalibration}
+              disabled={isCalibrating}
+              className="w-full"
+              variant={isCalibrating ? "secondary" : "default"}
+            >
+              {isCalibrating ? (
+                <>
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                  キャリブレーション中...
+                </>
+              ) : (
+                <>
+                  <Crosshair className="h-4 w-4 mr-2" />
+                  テストキャプチャ表示を実行
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </SettingsCard>
