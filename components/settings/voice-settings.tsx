@@ -225,10 +225,11 @@ export function VoiceSettings() {
             step={0.1}
             className="w-full"
           />
-          <div className="relative h-4 text-xs text-muted-foreground">
-            <span className="absolute left-0">0.5x</span>
-            <span className="absolute left-1/3 -translate-x-1/2">1.0x</span>
-            <span className="absolute right-0">2.0x</span>
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>0.5x</span>
+            <span>1.0x</span>
+            <span>1.5x</span>
+            <span>2.0x</span>
           </div>
         </div>
       </SettingsCard>
