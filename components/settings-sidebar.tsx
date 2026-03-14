@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import type { SettingsSection } from "@/app/page"
 
-export type TranslatorStatus = "translating" | "paused" | "stopped"
+export type TranslatorStatus = "running" | "stopped"
 
 // Default messages - can be replaced with custom file later
 const defaultMessages = [
@@ -47,9 +47,8 @@ const menuItems: { id: SettingsSection; label: string; icon: React.ReactNode }[]
 ]
 
 const statusConfig = {
-  translating: { label: "翻訳中", color: "bg-green-500" },
-  paused: { label: "一時停止中", color: "bg-yellow-500" },
-  stopped: { label: "停止中", color: "bg-muted-foreground" },
+  running: { label: "起動中", color: "bg-emerald-500", pulseColor: "bg-emerald-400" },
+  stopped: { label: "停止中", color: "bg-muted-foreground", pulseColor: "" },
 }
 
 // Create ripple effect for menu items
@@ -273,12 +272,21 @@ export function SettingsSidebar({ activeSection, onSectionChange, status = "stop
           <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-secondary transition-all duration-300 hover:bg-secondary/80">
             <span className="text-sm font-medium text-muted-foreground">v1.0.0</span>
             <div className="flex items-center gap-2">
-              <div className={cn(
-                "h-2 w-2 rounded-full transition-all duration-300",
-                statusConfig[status].color,
-                status === "translating" && "animate-pulse"
-              )} />
-              <span className="text-sm text-muted-foreground">{statusConfig[status].label}</span>
+              <div className="relative">
+                <div className={cn(
+                  "h-2 w-2 rounded-full transition-all duration-300",
+                  statusConfig[status].color
+                )} />
+                {status === "running" && (
+                  <div className="absolute inset-0 h-2 w-2 rounded-full bg-emerald-400 animate-ping opacity-75" />
+                )}
+              </div>
+              <span className={cn(
+                "text-sm transition-colors duration-300",
+                status === "running" ? "text-emerald-500 dark:text-emerald-400 font-medium" : "text-muted-foreground"
+              )}>
+                {statusConfig[status].label}
+              </span>
             </div>
           </div>
         </div>

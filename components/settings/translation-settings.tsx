@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Languages, Key, ScanText, RefreshCw, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react"
+import { Languages, Key, ScanText, RefreshCw, Eye, EyeOff, CheckCircle2, XCircle, Check } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
 
 export function TranslationSettings() {
@@ -17,10 +17,18 @@ export function TranslationSettings() {
   const [showGeminiKey, setShowGeminiKey] = useState(false)
   const [groqStatus, setGroqStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
   const [geminiStatus, setGeminiStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
-  const [ocrEngine, setOcrEngine] = useState("windows")
+  const [ocrEngine, setOcrEngine] = useState("rapidocr")
   const [primaryEngine, setPrimaryEngine] = useState("groq")
   const [autoFallback, setAutoFallback] = useState(true)
   const [translationShortness, setTranslationShortness] = useState([1])
+  const [showSaveToast, setShowSaveToast] = useState(false)
+
+  const handleSave = () => {
+    setShowSaveToast(true)
+    setTimeout(() => {
+      setShowSaveToast(false)
+    }, 2500)
+  }
 
   const testConnection = (type: "groq" | "gemini") => {
     const setStatus = type === "groq" ? setGroqStatus : setGeminiStatus
@@ -169,14 +177,14 @@ export function TranslationSettings() {
               <SelectValue placeholder="エンジンを選択" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="windows">Windows OCR（推奨）</SelectItem>
-              <SelectItem value="easyocr">EasyOCR</SelectItem>
+              <SelectItem value="rapidocr">RapidOCR（推奨）</SelectItem>
+              <SelectItem value="windows">Windows OCR</SelectItem>
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
-            {ocrEngine === "windows" 
-              ? "Windowsの標準OCR機能を使用します。軽量で高速です。" 
-              : "EasyOCRを使用します。精度が高いですが、やや遅いです。"}
+            {ocrEngine === "rapidocr" 
+              ? "RapidOCRを使用します。高精度で高速です。" 
+              : "Windowsの標準OCR機能を使用します。軽量ですが精度は控えめです。"}
           </p>
         </div>
       </SettingsCard>
@@ -247,9 +255,21 @@ export function TranslationSettings() {
       </SettingsCard>
 
       {/* Save Button */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 relative">
         <Button variant="outline">リセット</Button>
-        <Button>設定を保存</Button>
+        <Button onClick={handleSave}>設定を保存</Button>
+        
+        {/* Save Toast */}
+        {showSaveToast && (
+          <div 
+            className="absolute -top-16 right-0 flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/90 dark:bg-green-600/90 backdrop-blur-md text-white text-sm font-medium shadow-lg shadow-green-500/25 animate-save-toast"
+          >
+            <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/20">
+              <Check className="h-3 w-3" />
+            </div>
+            保存しました
+          </div>
+        )}
       </div>
     </div>
   )
