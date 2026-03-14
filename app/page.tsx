@@ -56,7 +56,8 @@ function SettingsContent() {
       <div className="relative z-10 flex">
         <SettingsSidebar 
           activeSection={activeSection} 
-          onSectionChange={setActiveSection} 
+          onSectionChange={setActiveSection}
+          status="running"
         />
         <main className="flex-1 p-6 lg:p-8">
           <div className="mx-auto max-w-4xl">

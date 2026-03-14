@@ -10,6 +10,8 @@ import { Wrench, Shield, Trash2, AlertTriangle, Monitor, Crosshair, Clock, FileT
 import { Textarea } from "@/components/ui/textarea"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { SaveToast } from "@/components/ui/save-toast"
+import { useSaveToast } from "@/hooks/use-save-toast"
 
 export function AdvancedSettings() {
   const [debugMode, setDebugMode] = useState(false)
@@ -18,6 +20,7 @@ export function AdvancedSettings() {
   const [captureInterval, setCaptureInterval] = useState(5) // Changed to seconds, default 5
   const [ignorePatterns, setIgnorePatterns] = useState("^\\d+$\n^[A-Za-z]$\n^https?://.*")
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { showSaveToast, handleSave } = useSaveToast()
 
   const handleCalibration = () => {
     setIsCalibrating(true)
@@ -266,9 +269,10 @@ export function AdvancedSettings() {
       </SettingsCard>
 
       {/* Save Button */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 relative">
         <Button variant="outline">リセット</Button>
-        <Button>設定を保存</Button>
+        <Button onClick={handleSave}>設定を保存</Button>
+        <SaveToast show={showSaveToast} />
       </div>
     </div>
   )

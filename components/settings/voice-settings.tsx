@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Volume2, Mic, Play, CheckCircle2, XCircle, RefreshCw } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
+import { SaveToast } from "@/components/ui/save-toast"
+import { useSaveToast } from "@/hooks/use-save-toast"
 
 export function VoiceSettings() {
   const [ttsEngine, setTtsEngine] = useState("edge-tts")
@@ -18,6 +20,7 @@ export function VoiceSettings() {
   const [edgeTtsStatus, setEdgeTtsStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
   const [isPlaying, setIsPlaying] = useState(false)
   const [minSpeakCharacters, setMinSpeakCharacters] = useState(5)
+  const { showSaveToast, handleSave } = useSaveToast()
 
   const testVoicevox = () => {
     setVoicevoxStatus("testing")
@@ -262,9 +265,10 @@ export function VoiceSettings() {
       </SettingsCard>
 
       {/* Save Button */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 relative">
         <Button variant="outline">リセット</Button>
-        <Button>設定を保存</Button>
+        <Button onClick={handleSave}>設定を保存</Button>
+        <SaveToast show={showSaveToast} />
       </div>
     </div>
   )

@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Keyboard, RotateCcw } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
+import { SaveToast } from "@/components/ui/save-toast"
+import { useSaveToast } from "@/hooks/use-save-toast"
 import { cn } from "@/lib/utils"
 
 interface Keybind {
@@ -159,6 +161,8 @@ function KeybindItem({ label, description, defaultKeybind }: KeybindItemProps) {
 }
 
 export function KeybindSettings() {
+  const { showSaveToast, handleSave } = useSaveToast()
+  
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -193,9 +197,10 @@ export function KeybindSettings() {
       </SettingsCard>
 
       {/* Save Button */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 relative">
         <Button variant="outline">すべてリセット</Button>
-        <Button>設定を保存</Button>
+        <Button onClick={handleSave}>設定を保存</Button>
+        <SaveToast show={showSaveToast} />
       </div>
     </div>
   )

@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Settings, Monitor } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
 import { BackgroundSettings } from "@/components/settings/background-settings"
+import { SaveToast } from "@/components/ui/save-toast"
+import { useSaveToast } from "@/hooks/use-save-toast"
 
 export function GeneralSettings() {
   const [autoStart, setAutoStart] = useState(true)
+  const { showSaveToast, handleSave } = useSaveToast()
 
   return (
     <div className="space-y-6">
@@ -43,9 +46,10 @@ export function GeneralSettings() {
       <BackgroundSettings />
 
       {/* Save Button */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 relative">
         <Button variant="outline">リセット</Button>
-        <Button>設定を保存</Button>
+        <Button onClick={handleSave}>設定を保存</Button>
+        <SaveToast show={showSaveToast} />
       </div>
     </div>
   )

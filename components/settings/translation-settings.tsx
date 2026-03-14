@@ -7,8 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Languages, Key, ScanText, RefreshCw, Eye, EyeOff, CheckCircle2, XCircle, Check } from "lucide-react"
+import { Languages, Key, ScanText, RefreshCw, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react"
 import { SettingsCard } from "@/components/settings/settings-card"
+import { SaveToast } from "@/components/ui/save-toast"
+import { useSaveToast } from "@/hooks/use-save-toast"
 
 export function TranslationSettings() {
   const [groqKey, setGroqKey] = useState("")
@@ -21,14 +23,7 @@ export function TranslationSettings() {
   const [primaryEngine, setPrimaryEngine] = useState("groq")
   const [autoFallback, setAutoFallback] = useState(true)
   const [translationShortness, setTranslationShortness] = useState([1])
-  const [showSaveToast, setShowSaveToast] = useState(false)
-
-  const handleSave = () => {
-    setShowSaveToast(true)
-    setTimeout(() => {
-      setShowSaveToast(false)
-    }, 2500)
-  }
+  const { showSaveToast, handleSave } = useSaveToast()
 
   const testConnection = (type: "groq" | "gemini") => {
     const setStatus = type === "groq" ? setGroqStatus : setGeminiStatus
@@ -258,18 +253,7 @@ export function TranslationSettings() {
       <div className="flex justify-end gap-3 relative">
         <Button variant="outline">リセット</Button>
         <Button onClick={handleSave}>設定を保存</Button>
-        
-        {/* Save Toast */}
-        {showSaveToast && (
-          <div 
-            className="absolute -top-16 right-0 flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/90 dark:bg-green-600/90 backdrop-blur-md text-white text-sm font-medium shadow-lg shadow-green-500/25 animate-save-toast"
-          >
-            <div className="flex items-center justify-center h-5 w-5 rounded-full bg-white/20">
-              <Check className="h-3 w-3" />
-            </div>
-            保存しました
-          </div>
-        )}
+        <SaveToast show={showSaveToast} />
       </div>
     </div>
   )
